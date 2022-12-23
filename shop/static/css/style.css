@@ -1,0 +1,13 @@
+.add-rem-button{
+    width: 100%;
+    height: 30px;
+    border-radius:50%;
+    text-align: center;
+    padding: 0px;
+    border: none;
+    background-color: green;
+  }
+  a{
+    text-decoration: none;
+    color: black;
+  }

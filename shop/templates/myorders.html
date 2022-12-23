@@ -1,0 +1,173 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static '/css/style.css'%}">
+    <title>Document</title>
+    <style>
+      
+    </style>
+</head>
+<body>
+    <section class="navbar-part">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="#">Navbar</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto ms-auto mb-2 mb-lg-0">
+                  <li class="nav-item">
+                    <a class="nav-link ps-3 pe-3 active" href="/">Home</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link ps-3 pe-3" href="/brand">Brands</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link ps-3 pe-3" href="/category">categories</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link ps-3 pe-3" href="/myorders">My orders</a>
+                  </li>
+                  
+                </ul>
+                <!-- <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                  <li class="nav-item ">
+                    <a class="nav-link ps-3 pe-3" href="/category">Cart <sup class="text-danger">12</sup></a>
+                  </li>
+                </ul> -->
+              <a class="navbar-brand" href="/cart">Cart<sup id="cart_qty" class="text-danger">{{cart_qty}}</sup></a>
+    
+    
+    
+              </div>
+            </div>
+          </nav>
+    </section>
+
+<section>
+    <div class="container">
+        <p class="h1 text-center pt-3">ORDERS</p>
+        <div id="orders">
+            {%for item in orders%}
+            <div class="row border mt-3">
+                <div class="col-2">
+                    <img src="{{item.p_img_url}}" alt="" width="100%">
+                </div>
+                <div class="col-2 mt-3">
+                    <p>Item Name</p>
+                    <p>{{item.p_name}}</p>
+                </div>
+                <div class="col-2 mt-3">
+                    <p>Order Date</p>
+                    <p>{{item.p_date}}</p>
+                </div>
+                <div class="col-2 mt-3">
+                    <p>Unit Price</p>
+                    <p>{{item.p_price}}</p>
+                </div>
+                <div class="col-1 mt-3">
+                    <p>Quantity</p>
+                    <p>{{item.p_qty}}</p>
+                </div>
+                <div class="col-2 mt-3">
+                    <p>Total Price</p>
+                    <p>{{item.p_total}}</p>
+                </div>
+                <div class="col-1 mt-3">
+                    {% csrf_token %}
+                    <!-- <select class="btn-cancel" name="status" id="{{item.id}}">
+                        <option value="new">New</option>
+                        <option value="cancel">cancel</option>
+
+                    </select> -->
+                    <p><button class="btn btn-danger btn-cancel mt-3" id="{{item.id}}">cancel</button></p>
+                </div>
+            </div>
+            {%endfor%}
+        </div>
+        
+    </div>
+</section>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+{% block javascript %}
+<script>
+   $("body").on("click", ".btn-cancel", function(){
+        // preventing from page reload and default actions
+        var id = $(this).attr('id');
+        // serialize the data for sending the form data.
+        var serializedData = $(this).serialize();
+        csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
+        //  make POST ajax call
+         $.ajax({
+             type: 'POST',
+             url: "/myorders/cancel",
+             data: {
+              'id':id,
+              csrfmiddlewaretoken: csrf_token
+             },
+             dataType:'json',
+             success: function (response) {
+                $('#orders').html('')
+                response.forEach((x) => {
+                    $('#orders').append(
+                        `
+                        <div class="row border mt-3">
+                            <div class="col-2">
+                                <img src="${x.p_img_url}" alt="" width="100%">
+                            </div>
+                            <div class="col-2 mt-3">
+                                <p>Item Name</p>
+                                <p>${x.p_name}</p>
+                            </div>
+                            <div class="col-2 mt-3">
+                                <p>Order Date</p>
+                                <p>${x.p_date}</p>
+                            </div>
+                            <div class="col-2 mt-3">
+                                <p>Unit Price</p>
+                                <p>${x.p_price}</p>
+                            </div>
+                            <div class="col-1 mt-3">
+                                <p>Quantity</p>
+                                <p>${x.p_qty}</p>
+                            </div>
+                            <div class="col-2 mt-3">
+                                <p>Total Price</p>
+                                <p>${x.p_total}</p>
+                            </div>
+                            <div class="col-1 mt-3">
+                                {% csrf_token %}
+                                <p><button class="btn btn-danger btn-cancel mt-3" id="${x.id}">cancel</button></p>
+
+                            </div>
+                        </div>
+
+                        `
+                    )
+                    
+                });
+              },
+            error: function (response) {
+                // alert the error if any error occured
+                alert(response["responseJSON"]["error"]);
+            }
+        })
+    })
+
+   
+
+</script>
+
+{% endblock javascript %}
+
+</body>
+</html>
